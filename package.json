@@ -24,8 +24,8 @@
   },
   "scripts": {
     "start": "node build/index.js",
-    "predev": "npm run swagger",
-    "prebuild": "npm run swagger",
+    "predev": "yarn run swagger",
+    "prebuild": "yarn run swagger",
     "build": "tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
     "swagger": "tsoa spec"
