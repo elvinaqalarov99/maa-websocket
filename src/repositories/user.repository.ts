@@ -1,5 +1,7 @@
-import { getRepository } from "typeorm";
+import { Repository } from "typeorm";
+
 import { User } from "../models";
+import AppDataSource from "../config/dataSource.config";
 
 export interface IUserPayload {
   firstName: string;
@@ -7,23 +9,23 @@ export interface IUserPayload {
   email: string;
 }
 
+const repository: Repository<User> = AppDataSource.getRepository(User);
+
 export const getUsers = async (): Promise<Array<User>> => {
-  const userRepository = getRepository(User);
-  return userRepository.find();
+  return repository.find();
 };
 
 export const createUser = async (payload: IUserPayload): Promise<User> => {
-  const userRepository = getRepository(User);
   const user = new User();
-  return userRepository.save({
+
+  return repository.save({
     ...user,
     ...payload,
   });
 };
 
 export const getUser = async (id: number): Promise<User | null> => {
-  const userRepository = getRepository(User);
-  const user = await userRepository.findOneBy({ id });
+  const user = await repository.findOneBy({ id });
 
   if (!user) return null;
 
