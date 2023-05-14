@@ -1,6 +1,6 @@
 import { DataSourceOptions } from "typeorm";
 
-import { Comment, Post, User } from "../models";
+import { User } from "../models";
 
 const config: DataSourceOptions = {
   type: "postgres",
@@ -9,7 +9,7 @@ const config: DataSourceOptions = {
   username: process.env.POSTGRES_USER || "postgres",
   password: process.env.POSTGRES_PASSWORD || "postgres",
   database: process.env.POSTGRES_DB || "postgres",
-  entities: [User, Post, Comment],
+  entities: [User],
   synchronize: true,
 };
 

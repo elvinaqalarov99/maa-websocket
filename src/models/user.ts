@@ -7,9 +7,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-import { Post } from "./post";
-import { Comment } from "./comment";
-
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -23,12 +20,6 @@ export class User {
 
   @Column()
   email!: string;
-
-  @OneToMany((_type) => Post, (post: Post) => post.user)
-  posts!: Array<Post>;
-
-  @OneToMany((_type) => Comment, (comment: Comment) => comment.user)
-  comments!: Array<Comment>;
 
   @CreateDateColumn()
   createdAt!: Date;
