@@ -2,20 +2,45 @@ import "reflect-metadata";
 import express, { Application } from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
+// import helmet from "helmet";
+// import hpp from "hpp";
+// import session from "express-session";
 
-import Router from "./routes";
+import router from "./routes";
 import AppDataSource from "./config/dataSource.config";
 
 const PORT: number = Number(process.env.PORT) || 8000;
 
+// const SESSION_AGE: number = 1000 * 60 * 60 * 24; // 24 hours
+// const SESSION_SECRET: string =
+//   process.env.SESSION_SECRET || "thisismysecrctekeyforelvinsadigapp";
+
 const app: Application = express();
 
-// specify midddlewares
+// Parse incoming requests with JSON payloads∂
 app.use(express.json());
+// Create HTTP requests logging
 app.use(morgan("tiny"));
+// Define static files folder
 app.use(express.static("public"));
-
-// add Swagger
+// Secure HTTP headers
+// app.use(
+//   helmet({
+//     xPoweredBy: false,
+//   })
+// );
+// Protect HTTP parameter pollution attacks
+// app.use(hpp());
+// Session configs
+// app.use(
+//   session({
+//     secret: SESSION_SECRET,
+//     saveUninitialized: true,
+//     cookie: { maxAge: SESSION_AGE, httpOnly: true, secure: true },
+//     resave: false,
+//   })
+// );
+// add Swagger configs
 app.use(
   "/docs",
   swaggerUi.serve,
@@ -25,11 +50,10 @@ app.use(
     },
   })
 );
+// add Router middleware
+app.use(router);
 
-// add router middleware
-app.use(Router);
-
-// initialize DB connection
+// initialize DB connection and run the Application
 AppDataSource.initialize()
   .then((_connection) => {
     app.listen(PORT, () => {

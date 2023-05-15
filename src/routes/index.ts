@@ -1,16 +1,15 @@
 import express from "express";
 
-import PingController from "../controllers/ping.controller";
-import UserRouter from "./user.router";
+import userRouter from "./user.router";
+import pingRouter from "./ping.router";
+import { errorHandler } from "../errors/errorHandler";
 
 const router = express.Router();
 
-router.get("/ping", async (_req, res) => {
-  const controller = new PingController();
-  const response = await controller.getMessage();
-  return res.send(response);
-});
+router.use("/users", userRouter);
+router.use("/ping", pingRouter);
 
-router.use("/users", UserRouter);
+// error handler middleware, should be after all routes
+router.use(errorHandler);
 
 export default router;

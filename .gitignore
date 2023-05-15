@@ -1,5 +1,5 @@
 node_modules
-yarn-debug.log
+yarn-*.log
 public/swagger.json
 yarn.lock
 build

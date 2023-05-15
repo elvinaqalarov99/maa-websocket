@@ -1,26 +1,38 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 import UserController from "../controllers/user.controller";
+import { errorListener } from "../errors/errorHandler";
 
 const router = express.Router();
 
-router.get("/", async (_req, res) => {
-  const controller = new UserController();
-  const response = await controller.getUsers();
-  return res.send(response);
-});
+router.get(
+  "/",
+  errorListener(async (_req: Request, res: Response, _next: NextFunction) => {
+    const controller = new UserController();
+    const response = await controller.getUsers();
 
-router.post("/", async (req, res) => {
-  const controller = new UserController();
-  const response = await controller.createUser(req.body);
-  return res.send(response);
-});
+    return res.status(response.status).json(response);
+  })
+);
 
-router.get("/:id", async (req, res) => {
-  const controller = new UserController();
-  const response = await controller.getUser(req.params.id);
-  if (!response) res.status(404).send({ message: "No user found" });
-  return res.send(response);
-});
+router.post(
+  "/",
+  errorListener(async (req: Request, res: Response, _next: NextFunction) => {
+    const controller = new UserController();
+    const response = await controller.createUser(req.body);
+
+    return res.json(response);
+  })
+);
+
+router.get(
+  "/:id",
+  errorListener(async (req: Request, res: Response, _next: NextFunction) => {
+    const controller = new UserController();
+    const response = await controller.getUser(req.params.id);
+
+    return res.json(response);
+  })
+);
 
 export default router;

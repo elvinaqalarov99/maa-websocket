@@ -1,10 +1,13 @@
-import UserController from "./user.controller";
-import * as UserRepository from "../repositories/user.repository";
+import { EntityNotFoundError } from "typeorm";
+import { IJsonResponse } from "../controllers/base.controller";
+import UserController from "../controllers/user.controller";
+import { User } from "../models";
+import { UserRepository } from "../repositories/user.repository";
 import {
   generateUserData,
   generateUserPayload,
   generateUsersData,
-} from "../tests/utils/user.test.utils";
+} from "./utils/user.util";
 
 afterEach(() => {
   jest.resetAllMocks();
@@ -13,12 +16,10 @@ afterEach(() => {
 describe("UserController", () => {
   describe("getUsers", () => {
     test("should return empty array", async () => {
-      const spy = jest
-        .spyOn(UserRepository, "getUsers")
-        .mockResolvedValueOnce([]);
+      const spy = jest.spyOn(UserRepository, "find").mockResolvedValueOnce([]);
       const controller = new UserController();
-      const users = await controller.getUsers();
-      expect(users).toEqual([]);
+      const response: IJsonResponse<Array<User>> = await controller.getUsers();
+      expect(response.data).toEqual([]);
       expect(spy).toHaveBeenCalledWith();
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -26,11 +27,11 @@ describe("UserController", () => {
     test("should return user list", async () => {
       const usersData = generateUsersData(2);
       const spy = jest
-        .spyOn(UserRepository, "getUsers")
+        .spyOn(UserRepository, "find")
         .mockResolvedValueOnce(usersData);
       const controller = new UserController();
-      const users = await controller.getUsers();
-      expect(users).toEqual(usersData);
+      const response: IJsonResponse<Array<User>> = await controller.getUsers();
+      expect(response.data).toEqual(usersData);
       expect(spy).toHaveBeenCalledWith();
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -41,12 +42,14 @@ describe("UserController", () => {
       const payload = generateUserPayload();
       const userData = generateUserData(payload);
       const spy = jest
-        .spyOn(UserRepository, "createUser")
+        .spyOn(UserRepository, "save")
         .mockResolvedValueOnce(userData);
       const controller = new UserController();
-      const user = await controller.createUser(payload);
-      expect(user).toMatchObject(payload);
-      expect(user).toEqual(userData);
+      const response: IJsonResponse<User> = await controller.createUser(
+        payload
+      );
+      expect(response.data).toMatchObject(payload);
+      expect(response.data).toEqual(userData);
       expect(spy).toHaveBeenCalledWith(payload);
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -57,25 +60,28 @@ describe("UserController", () => {
       const id = 1;
       const userData = generateUserData({ id });
       const spy = jest
-        .spyOn(UserRepository, "getUser")
+        .spyOn(UserRepository, "findOneByOrFail")
         .mockResolvedValueOnce(userData);
       const controller = new UserController();
-      const user = await controller.getUser(id.toString());
-      expect(user).toEqual(userData);
-      expect(user?.id).toBe(id);
-      expect(spy).toHaveBeenCalledWith(id);
+      const response: IJsonResponse<User> = await controller.getUser(
+        id.toString()
+      );
+      expect(response.data).toEqual(userData);
+      expect(response.data.id).toBe(id);
+      expect(spy).toHaveBeenCalledWith({ id });
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    test("should return null if user not found", async () => {
+    test("should throw error if user not found", async () => {
       const id = 1;
       const spy = jest
-        .spyOn(UserRepository, "getUser")
-        .mockResolvedValueOnce(null);
+        .spyOn(UserRepository, "findOneByOrFail")
+        .mockRejectedValueOnce(new Error());
       const controller = new UserController();
-      const user = await controller.getUser(id.toString());
-      expect(user).toBeNull();
-      expect(spy).toHaveBeenCalledWith(id);
+
+      await expect(controller.getUser(id.toString())).rejects.toThrow();
+
+      expect(spy).toHaveBeenCalledWith({ id });
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
