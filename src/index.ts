@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import dotenv from "dotenv";
 
-import { getData } from "./messages";
+import { getData } from "./responses";
 
 dotenv.config();
 
