@@ -1,24 +1,14 @@
 version: "3"
 
 services:
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=express-ts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-  app:
+  ws:
+    restart: on-failure
     build:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
       - ./src:/app/src
     ports:
-      - "8001:8000"
-    depends_on:
-      - db
+      - "8001:8080"
     environment:
-      - POSTGRES_DB=express-ts
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=db
+      - DATABASE_URL=${DATABASE_URL}

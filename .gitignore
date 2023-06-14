@@ -1,6 +1,6 @@
 node_modules
 yarn-*.log
-public/swagger.json
 yarn.lock
 build
 coverage
+.env

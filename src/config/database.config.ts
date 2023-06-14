@@ -1,16 +1,14 @@
-import { DataSourceOptions } from "typeorm";
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
-import { User } from "../models";
+dotenv.config();
 
-const config: DataSourceOptions = {
-  type: "postgres",
-  host: process.env.POSTGRES_HOST || "localhost",
-  port: Number(process.env.POSTGRES_PORT) || 5432,
-  username: process.env.POSTGRES_USER || "postgres",
-  password: process.env.POSTGRES_PASSWORD || "postgres",
-  database: process.env.POSTGRES_DB || "postgres",
-  entities: [User],
-  synchronize: true,
-};
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-export default config;
+pool.on("connect", () => {
+  console.log("connected to the db");
+});
+
+export { pool };

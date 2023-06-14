@@ -18,9 +18,11 @@ COPY package* ./
 
 RUN npm install --production
 
+RUN npm install pm2 -g
+
 COPY --from=builder ./app/public ./public
 COPY --from=builder ./app/build ./build
 
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["npm", "start"]
