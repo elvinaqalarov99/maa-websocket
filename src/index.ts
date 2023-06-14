@@ -40,7 +40,7 @@ wss.on("connection", function connection(ws: WebSocket) {
         hasMore: false,
       };
 
-      const OFFSET = req.page * LIMIT;
+      const OFFSET = req.page ?? 1 * LIMIT;
 
       switch (req.type) {
         case "sending":
