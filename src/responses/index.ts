@@ -1,17 +1,17 @@
-import WebSocket from "ws";
+import { RawData } from "ws";
 
-import { LIMIT } from "../utils/constants";
-import { Req, Res } from "../utils/types";
 import sendings from "./sendings";
 import { checkData } from "../utils/utils";
+import { DATA } from "../config/app.config";
+import { Request, Response } from "../types";
 
-const getData = async (data: WebSocket.RawData) => {
+const getData = async (data: RawData) => {
   const dataStr = data.toString();
 
   checkData(dataStr);
 
-  const req: Req = JSON.parse(dataStr);
-  const res: Res = {
+  const req: Request = JSON.parse(dataStr);
+  const res: Response = {
     payload: [],
     hasMore: false,
   };
@@ -24,7 +24,7 @@ const getData = async (data: WebSocket.RawData) => {
       throw new Error("Type is not provided or defined yet!");
   }
 
-  res.hasMore = res.payload.length === LIMIT;
+  res.hasMore = res.payload.length === DATA.limit;
 
   return res;
 };
