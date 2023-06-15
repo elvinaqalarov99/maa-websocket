@@ -4,13 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.2",
     "dotenv": "^16.1.4",
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.10.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^20.1.4",
     "@types/pg": "^8.10.2",
     "@types/ws": "^8.5.5",
