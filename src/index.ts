@@ -1,46 +1,52 @@
-import WebSocket, { WebSocketServer } from "ws";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-
+import { wss } from "./ws";
+import WebSocket from "ws";
 import { getData } from "./responses";
-import { AUTH } from "./config/app.config";
+import { connect } from "amqplib/callback_api";
+import { RABBITMQ } from "./config/app.config";
 
 dotenv.config();
 
-const wss = new WebSocketServer({
-  port: 8080,
-  verifyClient: function (info, cb) {
-    const authorization = info.req.headers.authorization;
-    if (!authorization) {
-      cb(false, 401, "Unauthorized");
-      return;
-    }
-
-    let [authType, token] = authorization.split(" ");
-
-    if (authType !== "Bearer") {
-      cb(false, 401, "Unauthorized");
-      return;
-    }
-
-    jwt.verify(token, AUTH.jwtSignKey, function (err, decoded) {
-      if (err) {
-        cb(false, 401, "Unauthorized");
-        return;
-      }
-
-      cb(true);
-    });
-  },
-});
-
 wss.on("connection", function connection(ws: WebSocket) {
-  ws.on("message", async function message(data: WebSocket.RawData) {
-    try {
-      ws.send(JSON.stringify(await getData(data)));
-    } catch (e: any) {
-      ws.send(e?.message || "Undefined error occured!");
+  // rabbitMQ connection
+  connect(RABBITMQ.connectionString, function (error0: any, connection: any) {
+    if (error0) {
+      throw error0;
     }
+    connection.createChannel(function (error1: any, channel: any) {
+      if (error1) {
+        throw error1;
+      }
+      const queue = "test-queue";
+
+      channel.assertQueue(queue, {
+        durable: true,
+      });
+
+      //  behaviour on Websocket
+      console.log(" [*] Waiting for messages in %s from websocket.");
+      ws.on("message", async function message(data: WebSocket.RawData) {
+        try {
+          ws.send(JSON.stringify(await getData(data)));
+        } catch (e: any) {
+          ws.send(e?.message || "Undefined error occured!");
+        }
+      });
+
+      // behaviour on rabbitMQ
+      console.log(" [*] Waiting for messages in %s from rabbit.", queue);
+      channel.consume(
+        queue,
+        function (msg: any) {
+          const msgStr = msg?.content?.toString();
+          console.log(" [x] Received %s", msgStr);
+          ws.send(` [x] Received ${msgStr}`);
+        },
+        {
+          noAck: true,
+        }
+      );
+    });
   });
 
   ws.send("Hi from Chatman!");

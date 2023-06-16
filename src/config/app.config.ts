@@ -10,4 +10,8 @@ const DB = {
   connectionString: process.env.DATABASE_URL || "",
 };
 
-export { DATA, AUTH, DB };
+const RABBITMQ = {
+  connectionString: process.env.RABBITMQ_URL || "",
+};
+
+export { DATA, AUTH, DB, RABBITMQ };
