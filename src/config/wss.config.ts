@@ -12,29 +12,29 @@ class CustomWebSocketServer extends WebSocketServer {
 
 const wss = new CustomWebSocketServer({
   port: 8080,
-  //   verifyClient: function (info, cb) {
-  //     const authorization = info.req.headers.authorization;
-  //     if (!authorization) {
-  //       cb(false, 401, "Unauthorized");
-  //       return;
-  //     }
+  verifyClient: function (info, cb) {
+    const authorization = info.req.headers.authorization;
+    if (!authorization) {
+      cb(false, 401, "Unauthorized");
+      return;
+    }
 
-  //     let [authType, token] = authorization.split(" ");
+    let [authType, token] = authorization.split(" ");
 
-  //     if (authType !== "Bearer") {
-  //       cb(false, 401, "Unauthorized");
-  //       return;
-  //     }
+    if (authType !== "Bearer") {
+      cb(false, 401, "Unauthorized");
+      return;
+    }
 
-  //     jwt.verify(token, AUTH.jwtSignKey, function (err, decoded) {
-  //       if (err) {
-  //         cb(false, 401, "Unauthorized");
-  //         return;
-  //       }
+    jwt.verify(token, AUTH.jwtSignKey, function (err, decoded) {
+      if (err) {
+        cb(false, 401, "Unauthorized");
+        return;
+      }
 
-  //       cb(true);
-  //     });
-  //   },
+      cb(true);
+    });
+  },
 });
 
 export { wss, CustomWebSocketServer };
