@@ -1,6 +1,5 @@
 node_modules
-yarn-*.log
 yarn.lock
 build
-coverage
 .env
+*.log

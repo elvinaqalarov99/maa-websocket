@@ -12,6 +12,11 @@ const DB = {
 
 const RABBITMQ = {
   connectionString: process.env.RABBITMQ_URL || "",
+  queueName: process.env.RABBITMQ_QUEUE || "",
 };
 
-export { DATA, AUTH, DB, RABBITMQ };
+const LOGGER = {
+  level: process.env.LOG_LEVEL || "info",
+};
+
+export { DATA, AUTH, DB, RABBITMQ, LOGGER };

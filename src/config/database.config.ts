@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { DB } from "./app.config";
+import logger from "../utils/logger";
 
 const pool = new Pool({
   connectionString: DB.connectionString,
@@ -8,7 +9,7 @@ const pool = new Pool({
 });
 
 pool.on("error", (e: Error) => {
-  console.log(e.message || "Connection to db error!");
+  logger.error(e.message || "Connection to db error!");
 });
 
 export { pool };
