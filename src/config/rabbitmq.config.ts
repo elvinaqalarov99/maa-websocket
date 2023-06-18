@@ -1,4 +1,5 @@
 import { Channel, Connection, Message, connect } from "amqplib/callback_api";
+
 import { RABBITMQ } from "./app.config";
 import { CustomWebSocketServer } from "./wss.config";
 import logger from "../utils/logger";
@@ -6,10 +7,10 @@ import logger from "../utils/logger";
 const connectRabbitMQ = (wss: CustomWebSocketServer) => {
   connect(
     RABBITMQ.connectionString,
-    function (connectionErr: any, connection: Connection) {
+    (connectionErr: any, connection: Connection) => {
       if (connectionErr) {
         logger.error(
-          `${
+          `RabbitMQ: ${
             connectionErr.message ||
             "Undefined error occured while RabbitMQ server connection"
           }`
@@ -17,10 +18,10 @@ const connectRabbitMQ = (wss: CustomWebSocketServer) => {
         return;
       }
 
-      connection.createChannel(function (channelErr: any, channel: Channel) {
+      connection.createChannel((channelErr: any, channel: Channel) => {
         if (channelErr) {
           logger.error(
-            `${
+            `RabbitMQ: ${
               channelErr.message ||
               "Undefined error occured while RabbitMQ channel connection"
             }`
@@ -37,10 +38,9 @@ const connectRabbitMQ = (wss: CustomWebSocketServer) => {
         logger.info(`[*] Waiting for messages in ${queue} from rabbitMQ.`);
         channel.consume(
           queue,
-          function (msg: Message | null) {
+          (msg: Message | null) => {
             const msgStr =
               msg?.content?.toString() || "[x] Undefined message from rabbitMQ";
-            logger.info(`[x] Received ${msgStr} from rabbitMQ.`);
             wss.broadcast(`[x] Received ${msgStr}`);
           },
           {

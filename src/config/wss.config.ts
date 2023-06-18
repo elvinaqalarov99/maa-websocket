@@ -5,13 +5,17 @@ import { AUTH } from "../config/app.config";
 
 class CustomWebSocketServer extends WebSocketServer {
   broadcast(msg: any): void {
-    this.clients.forEach((client: WebSocket) => client.send(msg));
+    this.clients.forEach((client: WebSocket) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msg);
+      }
+    });
   }
 }
 
 const wss = new CustomWebSocketServer({
   port: 8080,
-  verifyClient: function (info, cb) {
+  verifyClient: (info, cb) => {
     const authorization = info.req.headers.authorization;
 
     if (!authorization) {
@@ -26,14 +30,18 @@ const wss = new CustomWebSocketServer({
       return;
     }
 
-    jwt.verify(token, AUTH.jwtSignKey, function (err, decoded) {
-      if (err) {
-        cb(false, 401, "Unauthorized");
-        return;
-      }
+    jwt.verify(
+      token,
+      AUTH.jwtSignKey,
+      (err: jwt.VerifyErrors | null, decoded: any) => {
+        if (err) {
+          cb(false, 401, "Unauthorized");
+          return;
+        }
 
-      cb(true);
-    });
+        cb(true);
+      }
+    );
   },
 });
 

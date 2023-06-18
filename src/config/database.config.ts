@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+
 import { DB } from "./app.config";
 import logger from "../utils/logger";
 

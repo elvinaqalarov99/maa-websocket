@@ -1,5 +1,6 @@
 import pino, { StreamEntry } from "pino";
 import fs from "fs";
+
 import { LOGGER } from "../config/app.config";
 
 const streams: StreamEntry[] = [
