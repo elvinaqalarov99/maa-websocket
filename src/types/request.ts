@@ -1,5 +1,7 @@
+type RequestType = "sending";
+
 type Request = {
-  type: string;
+  type: RequestType;
   sort: string;
   page: number;
 };

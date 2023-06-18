@@ -16,6 +16,7 @@ const connectRabbitMQ = (wss: CustomWebSocketServer) => {
         );
         return;
       }
+
       connection.createChannel(function (channelErr: any, channel: Channel) {
         if (channelErr) {
           logger.error(
@@ -26,6 +27,7 @@ const connectRabbitMQ = (wss: CustomWebSocketServer) => {
           );
           return;
         }
+
         const queue = RABBITMQ.queueName;
 
         channel.assertQueue(queue, {

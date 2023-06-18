@@ -1,12 +1,11 @@
 import WebSocket, { WebSocketServer } from "ws";
-import { AUTH } from "../config/app.config";
 import jwt from "jsonwebtoken";
+
+import { AUTH } from "../config/app.config";
 
 class CustomWebSocketServer extends WebSocketServer {
   broadcast(msg: any): void {
-    this.clients.forEach(function each(client: WebSocket) {
-      client.send(msg);
-    });
+    this.clients.forEach((client: WebSocket) => client.send(msg));
   }
 }
 
@@ -14,6 +13,7 @@ const wss = new CustomWebSocketServer({
   port: 8080,
   verifyClient: function (info, cb) {
     const authorization = info.req.headers.authorization;
+
     if (!authorization) {
       cb(false, 401, "Unauthorized");
       return;
