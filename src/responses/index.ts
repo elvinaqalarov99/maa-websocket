@@ -1,6 +1,5 @@
 import { RawData } from "ws";
 
-import { sendingList } from "./sendings";
 import { checkData } from "../utils/utils";
 import { DATA } from "../config/app.config";
 import { Request, Response } from "../types";
@@ -18,9 +17,9 @@ const getData = async (ws: CustomWebSocket, data: RawData) => {
   };
 
   switch (req.type) {
-    case "sending":
-      res.payload = (await sendingList(ws, req)).rows;
-      break;
+    // case "sending":
+    //   res.payload = (await sendingList(ws, req)).rows;
+    //   break;
     default:
       throw new Error("Type is not provided or defined yet!");
   }
