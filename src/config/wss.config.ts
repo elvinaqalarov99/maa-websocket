@@ -1,7 +1,10 @@
 import WebSocket, { WebSocketServer } from "ws";
-import jwt from "jsonwebtoken";
+import { IncomingMessage, createServer } from "http";
 
-import { AUTH } from "../config/app.config";
+import { auth } from "./auth.config";
+import { connectRabbitMQ } from "./rabbitmq.config";
+import { getData } from "../responses";
+import logger from "../utils/logger";
 
 class CustomWebSocketServer extends WebSocketServer {
   broadcast(msg: any): void {
@@ -13,36 +16,54 @@ class CustomWebSocketServer extends WebSocketServer {
   }
 }
 
-const wss = new CustomWebSocketServer({
-  port: 8080,
-  verifyClient: (info, cb) => {
-    const authorization = info.req.headers.authorization;
+const onSocketError = (err: Error) => logger.error(err.message);
 
-    if (!authorization) {
-      cb(false, 401, "Unauthorized");
-      return;
-    }
+const runWSServer = () => {
+  const server = createServer();
+  const wss = new CustomWebSocketServer({ noServer: true });
 
-    let [authType, token] = authorization.split(" ");
+  // define Websocket connection functionality
+  wss.on(
+    "connection",
+    (ws: WebSocket, request: IncomingMessage, client: object) => {
+      ws.on("error", (err) => logger.error(err.message));
 
-    if (authType !== "Bearer") {
-      cb(false, 401, "Unauthorized");
-      return;
-    }
+      // rabbitMQ connection
+      connectRabbitMQ(wss);
 
-    jwt.verify(
-      token,
-      AUTH.jwtSignKey,
-      (err: jwt.VerifyErrors | null, decoded: any) => {
-        if (err) {
-          cb(false, 401, "Unauthorized");
-          return;
+      // default behaviour on Websocket
+      ws.on("message", async (data: WebSocket.RawData) => {
+        try {
+          ws.send(JSON.stringify(await getData(data)));
+        } catch (e: any) {
+          ws.send(e?.message || "[x] Undefined error occured!");
         }
+      });
 
-        cb(true);
+      ws.send("Hi from Chatman!");
+    }
+  );
+
+  // define and listen to Server Websocket connection type
+  server.on("upgrade", (request, socket, head) => {
+    socket.on("error", onSocketError);
+
+    auth(request, (status: boolean, client: object | undefined) => {
+      if (!status || !client) {
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        socket.destroy();
+        return;
       }
-    );
-  },
-});
 
-export { wss, CustomWebSocketServer };
+      socket.removeListener("error", onSocketError);
+
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit("connection", ws, request, client);
+      });
+    });
+  });
+
+  server.listen(8080);
+};
+
+export { runWSServer, CustomWebSocketServer };
