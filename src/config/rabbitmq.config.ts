@@ -35,7 +35,6 @@ const connectRabbitMQ = (wss: CustomWebSocketServer) => {
           durable: true,
         });
 
-        logger.info(`[*] Waiting for messages in ${queue} from rabbitMQ.`);
         channel.consume(
           queue,
           (msg: Message | null) => {
