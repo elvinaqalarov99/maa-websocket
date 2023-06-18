@@ -7,7 +7,6 @@ import {
   setConnectedUser,
 } from "./auth.config";
 import { connectRabbitMQ } from "./rabbitmq.config";
-import { getData } from "../responses";
 import logger from "../utils/logger";
 
 class CustomWebSocketServer extends WebSocketServer {
@@ -48,7 +47,8 @@ const runWSServer = () => {
       // default behaviour on Websocket
       ws.on("message", async (data: WebSocket.RawData) => {
         try {
-          ws.send(JSON.stringify(await getData(ws, data)));
+          // JSON.stringify(await getData(ws, data))
+          ws.send(`[x] Data you sent: ${data}`);
         } catch (e: any) {
           ws.send(e?.message || "[x] Undefined error occured!");
         }
